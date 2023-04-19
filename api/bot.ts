@@ -19,6 +19,7 @@ bot.use(addLesson);
 bot.use(seeLesson);
 
 bot.on("message", (ctx) => {
+  console.log("check");
   const keyboard = new InlineKeyboard()
     .text("Qoidalarni ko'rish", "seeQoida")
     .text("Suralarni ko'rish", "seeQuran")
@@ -61,4 +62,4 @@ bot.catch((err) => {
   }
 });
 
-export default webhookCallback(bot, "http");
+export default webhookCallback(bot, "https");
