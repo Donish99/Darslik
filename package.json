@@ -6,7 +6,8 @@
   "scripts": {
     "test": "cho \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "dev": "nodemon ./build/bot.js"
+    "watch": "nodemon ./build/bot.js",
+    "dev": "node ./build/bot.js"
   },
   "author": "Akhmadullo Nurmakhamatov",
   "license": "ISC",

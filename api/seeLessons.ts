@@ -1,30 +1,42 @@
-import { MyContext } from "./session";
+import { Lesson, MyContext } from "./session";
 import { readJson } from "./utils";
-import { Composer, InlineKeyboard, Keyboard } from "grammy";
+import { Composer, InlineKeyboard } from "grammy";
 
 export const seeLesson = new Composer<MyContext>();
 
 seeLesson.callbackQuery("seeQoida", async (ctx) => {
-  ctx.session.category === "qoida";
-  let content = readJson();
+  ctx.session.category = "qoida";
+  let { content } = readJson();
   const keyboard = new InlineKeyboard().text("O'rtga", "back");
-  content["qoida"].forEach(
-    (element: { name: string; link: string }, index: number) => {
-      if (index % 2) keyboard.row();
-      keyboard.text(element.name);
-    }
-  );
+  for (let name in content["qoida"]) {
+    keyboard.text(name);
+  }
   await ctx.editMessageText("Darslikni tanlang", { reply_markup: keyboard });
 });
+
 seeLesson.callbackQuery("seeQuran", async (ctx) => {
-  ctx.session.category === "quran";
-  let content = readJson();
+  ctx.session.category = "quran";
+  let { content } = readJson();
   const keyboard = new InlineKeyboard().text("O'rtga", "back");
-  content["quran"].forEach(
-    (element: { name: string; link: string }, index: number) => {
-      keyboard.text(element.name);
-      if (index % 2) keyboard.row();
-    }
-  );
+  for (let name in content["qoida"]) {
+    keyboard.text(name);
+  }
   await ctx.editMessageText("Darslikni tanlang", { reply_markup: keyboard });
+});
+
+seeLesson.on("callback_query:data", async (ctx, next) => {
+  if (ctx.callbackQuery.data === "back" || ctx.session.category === "idle") {
+    ctx.session.category = "idle";
+    return next();
+  }
+
+  const lessonName = ctx.callbackQuery.data;
+  const { category } = ctx.session;
+  let { content } = readJson();
+  const lesson: Lesson = content[category][lessonName];
+  for (let fileId of lesson.fileIdList) {
+    await ctx.replyWithAudio(fileId, {
+      caption: `#${lessonName} #${category}`,
+    });
+  }
 });

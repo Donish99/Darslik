@@ -1,12 +1,12 @@
 import { Context, SessionFlavor } from "grammy";
 
 export type Category = "idle" | "quran" | "qoida";
-export type Lesson = { name: string; link: string };
+export type Lesson = { linkList: string[]; fileIdList: string[] };
 
 interface SessionData {
   category: Category;
   newLessonName?: string;
-  lesson?: Lesson;
+  audioFileIndex?: number;
 }
 export type MyContext = Context & SessionFlavor<SessionData>;
 export const initial = (): SessionData => ({ category: "idle" });

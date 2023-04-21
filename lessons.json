@@ -1,1 +1,6 @@
-{"qoida":[{"name":"asda","link":"audio/qoida/asda.mp3"},{"name":"asd","link":"audio/qoida/asd.mp3"},{"name":"asdasd","link":"audio/qoida/asdasd.mp3"},{"name":"123","link":"audio/qoida/123.mp3"},{"name":"sdas","link":"audio/qoida/sdas.mp3"},{"name":"852","link":"audio/qoida/852.mp3"},{"link":"audio/qoida/156156.mp3","name":"156156"},{"link":"audio/qoida/asda.mp3","name":"asda"}],"quran":[{"link":"audio/quran/asd.mp3","name":"asd"},{"link":"audio/quran/das.mp3","name":"das"}]}
+{
+  "content": {
+    "qoida": {},
+    "quran": {}
+  }
+}

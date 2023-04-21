@@ -1,51 +1,34 @@
 import { addLesson } from "./addLesson";
 import CONFIG from "./config";
+import { getMenu } from "./keyboards";
 import { seeLesson } from "./seeLessons";
 import { initial, MyContext } from "./session";
-import {
-  Bot,
-  GrammyError,
-  HttpError,
-  InlineKeyboard,
-  session,
-  webhookCallback,
-} from "grammy";
+import { Bot, GrammyError, HttpError, session, webhookCallback } from "grammy";
 
 if (!CONFIG.bot_token) throw new Error("BOT_TOKEN is unset");
 
 const bot = new Bot<MyContext>(CONFIG.bot_token);
 bot.use(session({ initial }));
+
+/* Order matters! */
 bot.use(addLesson);
 bot.use(seeLesson);
 
-bot.on("message", (ctx) => {
-  console.log("check");
-  const keyboard = new InlineKeyboard()
-    .text("Qoidalarni ko'rish", "seeQoida")
-    .text("Suralarni ko'rish", "seeQuran")
-    .row();
+bot.on(
+  "message",
+  async (ctx) =>
+    await ctx.reply("Iltimos pastdagi tugmalardan birini bosing!", {
+      reply_markup: getMenu(ctx.chat.id),
+    })
+);
 
-  if (ctx.chat.id === CONFIG.admin_chat_id)
-    keyboard.text("Darslik qoshish", "addLesson");
-
-  return ctx.reply("Iltimos pastdagi tugmalardan birini bosing!", {
-    reply_markup: keyboard,
-  });
-});
-
-bot.callbackQuery("back", (ctx) => {
-  const keyboard = new InlineKeyboard()
-    .text("Qoidalarni ko'rish", "seeQoida")
-    .text("Suralarni ko'rish", "seeQuran")
-    .row();
-
-  if (ctx.chat?.id === CONFIG.admin_chat_id)
-    keyboard.text("Darslik qoshish", "addLesson");
-
-  return ctx.editMessageText("Iltimos pastdagi tugmalardan birini bosing!", {
-    reply_markup: keyboard,
-  });
-});
+bot.callbackQuery(
+  "back",
+  async (ctx) =>
+    await ctx.editMessageText("Iltimos pastdagi tugmalardan birini bosing!", {
+      reply_markup: getMenu(ctx.chat?.id),
+    })
+);
 
 // Start the bot.
 bot.start();

@@ -1,5 +1,5 @@
 import CONFIG from "./config";
-import { Category } from "./session";
+import { Category, Lesson } from "./session";
 import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import axios from "axios";
 import Ffmpeg from "fluent-ffmpeg";
@@ -51,11 +51,28 @@ export const removefiles = async (directory: string) => {
 export const readJson = () =>
   JSON.parse(readFileSync("./lessons.json", "utf-8"));
 
-export const insertIntoJson = async (
-  category: Category,
-  lesson: { name: string; link: string }
-) => {
-  let content = readJson();
-  content[category] = [...content[category], lesson];
-  writeFileSync("./lessons.json", JSON.stringify(content));
+export const insertIntoJson = async ({
+  fileId,
+  name,
+  category,
+  link,
+}: {
+  category: Category;
+  name: string;
+  link: string;
+  fileId: string;
+}) => {
+  let { content } = readJson();
+
+  let lesson: Lesson = content[category]?.[name] ?? {
+    fileIdList: [],
+    linkList: [],
+  };
+  console.log(lesson, content[category]?.[name], category, content);
+  lesson = {
+    fileIdList: [...lesson.fileIdList, fileId],
+    linkList: [...lesson.linkList, link],
+  };
+  content[category][name] = lesson;
+  writeFileSync("./lessons.json", JSON.stringify({ content }));
 };
