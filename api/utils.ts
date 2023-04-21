@@ -1,5 +1,5 @@
 import CONFIG from "./config";
-import { Category, initialLessons, Lesson, Lessons } from "./session";
+import { Category, Lesson, Lessons } from "./session";
 import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import axios from "axios";
 import Ffmpeg from "fluent-ffmpeg";
@@ -62,38 +62,28 @@ export const removefiles = async (directory: string) => {
   }
 };
 
-export const readJson = (): Promise<Lessons> =>
-  new Promise((resolve, reject) => {
-    readFile("./lessons.json", "utf-8", (err, data) => {
-      if (err) {
-        writeFileSync("./lessons.json", JSON.stringify(initialLessons));
-        resolve(initialLessons);
-      } else resolve(JSON.parse(data));
-    });
-  });
+// export const insertIntoJson = async ({
+//   fileId,
+//   name,
+//   category,
+//   link,
+// }: {
+//   category: "qoida" | "quran";
+//   name: string;
+//   link: string;
+//   fileId: string;
+// }) => {
+//   let content = await readJson();
 
-export const insertIntoJson = async ({
-  fileId,
-  name,
-  category,
-  link,
-}: {
-  category: "qoida" | "quran";
-  name: string;
-  link: string;
-  fileId: string;
-}) => {
-  let content = await readJson();
+//   let lesson: Lesson = content[category]?.[name] ?? {
+//     fileIdList: [],
+//     linkList: [],
+//   };
+//   lesson = {
+//     fileIdList: [...lesson.fileIdList, fileId],
+//     linkList: [...lesson.linkList, link],
+//   };
 
-  let lesson: Lesson = content[category]?.[name] ?? {
-    fileIdList: [],
-    linkList: [],
-  };
-  lesson = {
-    fileIdList: [...lesson.fileIdList, fileId],
-    linkList: [...lesson.linkList, link],
-  };
-
-  content[category][name] = lesson;
-  writeFileSync("./lessons.json", JSON.stringify(content));
-};
+//   content[category][name] = lesson;
+//   writeFileSync("./lessons.json", JSON.stringify(content));
+// };

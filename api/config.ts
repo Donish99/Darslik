@@ -1,10 +1,24 @@
 import * as dotenv from "dotenv";
-dotenv.config();
+
+const envFound = dotenv.config();
+if (envFound.error) {
+  // This error should crash whole process
+
+  throw new Error("⚠️  Couldn't find .env file  ⚠️");
+}
 
 const CONFIG = {
-  admin_chat_id: Number(process.env.ADMIN_CHAT_ID) ?? 0,
-  bot_token: process.env.BOT_TOKEN ?? "",
+  admin_chat_id: Number(process.env.ADMIN_CHAT_ID)!,
+  bot_token: process.env.BOT_TOKEN!,
   tg_url: `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}`,
+  DB: {
+    host: process.env.DB_HOST!,
+    port: Number(process.env.DB_PORT!),
+    database: process.env.DB_NAME!,
+    user: process.env.DB_USER!,
+    password: process.env.DB_PASSWORD!,
+    connection_string: process.env.CON_STRING!,
+  },
 };
 
 export default CONFIG;

@@ -1,20 +1,32 @@
+import CONFIG from "./config";
 import { getMenu } from "./keyboards";
 import { MyContext } from "./session";
-import {
-  convertOggToMp3,
-  insertIntoJson,
-  removefiles,
-  getAndSaveVoice,
-} from "./utils";
+import { convertOggToMp3, removefiles, getAndSaveVoice } from "./utils";
 import { Composer, InlineKeyboard, InputFile } from "grammy";
+import { Pool } from "pg";
 
 export const addLesson = new Composer<MyContext>();
 
 addLesson.command("stop", async (ctx) => {
-  const { category } = ctx.session;
+  const { category, newLessonName, audioFileIds } = ctx.session;
+
+  const pool = new Pool(CONFIG.DB);
+  pool.query(
+    `
+        INSERT INTO lessons (type, name, audio_id_list)
+        VALUES ($1, $2, $3)
+        RETURNING *
+  `,
+    [category, newLessonName, audioFileIds],
+    (err, res) => {
+      pool.end();
+      if (err) console.log(err);
+    }
+  );
 
   ctx.session.category = "idle";
   ctx.session.newLessonName = undefined;
+  ctx.session.audioFileIds = undefined;
   await removefiles("./voice");
 
   await ctx.reply(`Darsliklar ${category} ro'xatiga qoshildi`, {
@@ -65,12 +77,13 @@ addLesson.on("message:voice", async (ctx) => {
   const path = file.file_path; // file path on Bot API server
 
   if (!path) return await ctx.reply("Xatolik yuz berdi");
-  const audioFileIndex = ctx.session.audioFileIndex ?? 0;
+  let audioFileIds = ctx.session.audioFileIds ?? [];
 
   const oggPath =
-    `voice/${newLessonName}${audioFileIndex}.ogg` ?? path.replace("oga", "ogg");
+    `voice/${newLessonName}_${audioFileIds.length}.ogg` ??
+    path.replace("oga", "ogg");
   const mp3Path =
-    `audio/${category}/${newLessonName}${audioFileIndex}.mp3` ??
+    `audio/${category}/${newLessonName}_${audioFileIds.length}.mp3` ??
     path.replace("oga", "mp3").replace("voice", "audio");
 
   await getAndSaveVoice(path, oggPath);
@@ -81,12 +94,5 @@ addLesson.on("message:voice", async (ctx) => {
     new InputFile(mp3Path)
   );
 
-  await insertIntoJson({
-    category,
-    link: mp3Path,
-    fileId: audio.file_id,
-    name: newLessonName,
-  });
-
-  ctx.session.audioFileIndex = audioFileIndex + 1;
+  ctx.session.audioFileIds = [...audioFileIds, audio.file_id];
 });
