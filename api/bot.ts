@@ -16,6 +16,8 @@ bot.use(addLesson);
 bot.use(seeLesson);
 
 bot.command("start", async (ctx) => {
+  console.log("start");
+
   if (!ctx.from) return await ctx.reply("Wrong start");
   const { id, first_name: name, username } = ctx.from;
   const pool = new Pool(CONFIG.DB);
@@ -25,9 +27,9 @@ bot.command("start", async (ctx) => {
     if (res.rows.length === 0)
       await pool.query(
         `
-        INSERT INTO users (name, id, username)
-        VALUES ($1, $2, $3)
-        RETURNING *
+      INSERT INTO users (name, id, username)
+      VALUES ($1, $2, $3)
+      RETURNING *
       `,
         [name, id, username]
       );
@@ -36,6 +38,7 @@ bot.command("start", async (ctx) => {
       { reply_markup: getMenu(id) }
     );
   });
+  console.log("start");
 });
 
 bot.on(

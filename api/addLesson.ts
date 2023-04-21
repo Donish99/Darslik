@@ -63,10 +63,10 @@ addLesson.callbackQuery("addToQuran", async (ctx) => {
   });
 });
 
-addLesson.on("message:text", (ctx, next) => {
+addLesson.on("message:text", async (ctx, next) => {
   if (ctx.session.category === "idle") return next();
   ctx.session.newLessonName = ctx.message?.text;
-  return ctx.reply("Audio filelar yuboring, oxirida /stop bosing");
+  return await ctx.reply("Audio filelar yuboring, oxirida /stop bosing");
 });
 
 addLesson.on("message:voice", async (ctx) => {
