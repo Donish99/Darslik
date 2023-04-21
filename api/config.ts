@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-const envFound = dotenv.config();
+dotenv.config();
 
 const CONFIG = {
   admin_chat_id: Number(process.env.ADMIN_CHAT_ID)!,
@@ -15,7 +15,5 @@ const CONFIG = {
     connection_string: process.env.CON_STRING!,
   },
 };
-
-console.log(CONFIG);
 
 export default CONFIG;
