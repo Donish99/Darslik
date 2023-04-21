@@ -1,19 +1,32 @@
 import CONFIG from "./config";
-import { Category, Lesson } from "./session";
+import { Category, initialLessons, Lesson, Lessons } from "./session";
 import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import axios from "axios";
 import Ffmpeg from "fluent-ffmpeg";
 import {
   createWriteStream,
+  existsSync,
+  mkdirSync,
   readdirSync,
-  readFileSync,
+  readFile,
   unlinkSync,
   writeFileSync,
 } from "fs";
 import path from "path";
 
+const checkAndCreateDirectory = (path: string) => {
+  let arr = path.split("/");
+  arr.pop();
+  arr.join("/");
+  const dir = arr.join("/");
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+};
+
 export const convertOggToMp3 = (inPath: string, outPath: string) => {
   Ffmpeg.setFfmpegPath(ffmpegPath.path);
+  checkAndCreateDirectory(outPath);
   var outStream = createWriteStream(outPath);
 
   return new Promise((resolve, reject) => {
@@ -39,6 +52,7 @@ export const getAndSaveVoice = async (path: string, oggPath: string) => {
   const { data } = await axios.get(`${CONFIG.tg_url}/${path}`, {
     responseType: "arraybuffer",
   });
+  checkAndCreateDirectory(oggPath);
   writeFileSync(oggPath, data);
 };
 
@@ -48,8 +62,15 @@ export const removefiles = async (directory: string) => {
   }
 };
 
-export const readJson = () =>
-  JSON.parse(readFileSync("./lessons.json", "utf-8"));
+export const readJson = (): Promise<Lessons> =>
+  new Promise((resolve, reject) => {
+    readFile("./lessons.json", "utf-8", (err, data) => {
+      if (err) {
+        writeFileSync("./lessons.json", JSON.stringify(initialLessons));
+        resolve(initialLessons);
+      } else resolve(JSON.parse(data));
+    });
+  });
 
 export const insertIntoJson = async ({
   fileId,
@@ -57,22 +78,22 @@ export const insertIntoJson = async ({
   category,
   link,
 }: {
-  category: Category;
+  category: "qoida" | "quran";
   name: string;
   link: string;
   fileId: string;
 }) => {
-  let { content } = readJson();
+  let content = await readJson();
 
   let lesson: Lesson = content[category]?.[name] ?? {
     fileIdList: [],
     linkList: [],
   };
-  console.log(lesson, content[category]?.[name], category, content);
   lesson = {
     fileIdList: [...lesson.fileIdList, fileId],
     linkList: [...lesson.linkList, link],
   };
+
   content[category][name] = lesson;
-  writeFileSync("./lessons.json", JSON.stringify({ content }));
+  writeFileSync("./lessons.json", JSON.stringify(content));
 };

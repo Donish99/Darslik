@@ -6,7 +6,7 @@ export const seeLesson = new Composer<MyContext>();
 
 seeLesson.callbackQuery("seeQoida", async (ctx) => {
   ctx.session.category = "qoida";
-  let { content } = readJson();
+  let content = await readJson();
   const keyboard = new InlineKeyboard().text("O'rtga", "back");
   for (let name in content["qoida"]) {
     keyboard.text(name);
@@ -16,7 +16,7 @@ seeLesson.callbackQuery("seeQoida", async (ctx) => {
 
 seeLesson.callbackQuery("seeQuran", async (ctx) => {
   ctx.session.category = "quran";
-  let { content } = readJson();
+  let content = await readJson();
   const keyboard = new InlineKeyboard().text("O'rtga", "back");
   for (let name in content["qoida"]) {
     keyboard.text(name);
@@ -32,7 +32,7 @@ seeLesson.on("callback_query:data", async (ctx, next) => {
 
   const lessonName = ctx.callbackQuery.data;
   const { category } = ctx.session;
-  let { content } = readJson();
+  let content = await readJson();
   const lesson: Lesson = content[category][lessonName];
   for (let fileId of lesson.fileIdList) {
     await ctx.replyWithAudio(fileId, {

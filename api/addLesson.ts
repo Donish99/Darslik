@@ -59,7 +59,6 @@ addLesson.on("message:text", (ctx, next) => {
 
 addLesson.on("message:voice", async (ctx) => {
   const { category, newLessonName } = ctx.session;
-  console.log(category, newLessonName);
 
   if (category === "idle" || !newLessonName) return;
   const file = await ctx.getFile(); // valid for at least 1 hour
